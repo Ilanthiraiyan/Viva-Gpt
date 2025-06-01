@@ -32,7 +32,7 @@ LANGUAGES = {
 }
 
 st.set_page_config(page_title="Multilingual Document Analyzer", layout="wide")
-st.title("📄 VivaGPT - Document Simplifier + Translator + Voice")
+st.title("📄 Multilingual- Document Simplifier + Translator + Voice")
 st.markdown("Upload a `.docx` file to simplify and translate it. Output will be explained like a teacher in your language!")
 
 language_name = st.selectbox("Choose Output Language", list(LANGUAGES.keys()), index=0)
