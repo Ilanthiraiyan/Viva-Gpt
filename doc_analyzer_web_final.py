@@ -6,7 +6,7 @@ import tempfile
 
 # Setup page
 st.set_page_config(page_title="VivaGPT - AI Document Simplifier", layout="centered")
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Language support
 LANGUAGES = {
@@ -32,24 +32,20 @@ st.markdown("---")
 language_name = st.selectbox("🌐 Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
 
-# 🔒 Payment session state setup
+# Payment session state
 if "usage_count" not in st.session_state:
     st.session_state["usage_count"] = 0
-
 if "paid_user" not in st.session_state:
     st.session_state["paid_user"] = False
 
-# 🔑 NEW: Ask for Gmail & check
+# Gmail check
 if not st.session_state.paid_user:
     user_email = st.text_input("🔐 Enter your Gmail ID to check premium access:")
-
-    PAID_USERS = ["user1@gmail.com", "ithiraiyan86@gmail.com"]  # Add more emails as they pay
-
+    PAID_USERS = ["user1@gmail.com", "ithiraiyan86@gmail.com"]
     if user_email and user_email.strip().lower() in [e.lower() for e in PAID_USERS]:
         st.session_state.paid_user = True
         st.success("✅ Premium access activated.")
 
-# Usage check
 if st.session_state.usage_count >= 1 and not st.session_state.paid_user:
     st.warning("🔴 Free usage limit reached (1 file/day).")
     st.markdown("To unlock unlimited access for 7 days, please pay ₹49 using the details below:")
@@ -57,12 +53,11 @@ if st.session_state.usage_count >= 1 and not st.session_state.paid_user:
     st.markdown("📧 After payment, email your **Gmail ID** and **screenshot** to: `ithiraiyan@gmail.com` to activate your access.")
     st.stop()
 
-# File upload
+# Upload
 uploaded_file = st.file_uploader("📂 Upload a .docx file to analyze", type=["docx"])
 
 if uploaded_file:
     try:
-        # Read document
         doc = Document(uploaded_file)
         paragraphs = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
         summary_text = "\n".join(paragraphs)
@@ -70,7 +65,6 @@ if uploaded_file:
 
         # Step 1: Simplify
         with st.spinner("✍️ Simplifying..."):
-            client = openai.OpenAI()
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -78,10 +72,10 @@ if uploaded_file:
                     {"role": "user", "content": f"Simplify and explain this document content for a college student:\n{preview}"}
                 ]
             )
-            simplified = response.choices[0].message["content"]
+            simplified = response.choices[0].message.content
             translated = simplified
 
-               # Step 2: Translate
+        # Step 2: Translate if needed
         if language_code != 'en':
             with st.spinner(f"🌐 Translating to {language_name}..."):
                 translation_prompt = f"""
@@ -90,7 +84,7 @@ if uploaded_file:
                 - Maintain formatting like bullets or numbered lists.
                 - Do NOT add emojis or change the original structure.
                 - Use culturally appropriate and accurate translations for professional terms.
-                - Translate job titles, project names, and skills correctly (e.g., 'Project Manager' → 'திட்ட மேலாளர்' in Tamil).
+                - Translate job titles, project names, and skills correctly.
                 - Avoid slang or casual phrases — keep it professional and easy to understand.
 
                 Content to translate:
@@ -98,22 +92,20 @@ if uploaded_file:
                 {simplified}
                 \"\"\"
                 """
-
-                translation_response = openai.ChatCompletion.create(
+                translation_response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": "You translate simplified English into Indian languages for general users."},
                         {"role": "user", "content": translation_prompt}
                     ]
                 )
-                translated = translation_response.choices[0].message["content"]
-
+                translated = translation_response.choices[0].message.content
 
         # Output
         st.success("✅ Done! See below.")
         st.text_area("📑 Result:", translated, height=400)
 
-        # Voice
+        # Voice output
         if st.button("🔊 Read Aloud"):
             tts = gTTS(text=translated, lang=language_code)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
