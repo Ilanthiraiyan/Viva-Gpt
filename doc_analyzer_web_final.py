@@ -6,11 +6,9 @@ from gtts import gTTS
 import os
 import tempfile
 import openai
-from openai import OpenAI
 
-# Load environment variables from .env file
-openai_key = st.secrets["OPENAI_API_KEY"]
-
+# Get OpenAI API key securely from Streamlit secrets
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 LANGUAGES = {
     'English': 'en',
@@ -33,42 +31,33 @@ LANGUAGES = {
     'Korean (한국어)': 'ko'
 }
 
-st.set_page_config(page_title="Multilingual Document Analyzer", layout="wide")
-st.title("📄 Multilingual Document Analyzer")
-st.markdown("Upload a `.docx` document to analyze and translate its content into your chosen language.")
-
-# Get OpenAI API key from .env
-openai_key = st.secrets["OPENAI_API_KEY"]
+st.set_page_config(page_title="VivaGPT - Multilingual Document Analyzer", layout="wide")
+st.title("📄 VivaGPT - Document Simplifier + Translator + Voice")
+st.markdown("Upload a `.docx` file to simplify and translate it. Output will be explained like a teacher in your language!")
 
 language_name = st.selectbox("Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
 
-uploaded_file = st.file_uploader("Upload .docx file", type=["docx"])
+uploaded_file = st.file_uploader("📁 Upload a .docx file", type=["docx"])
 
-if uploaded_file and openai_key:
+if uploaded_file:
     try:
-        openai.api_key = openai_key
         doc = Document(uploaded_file)
         paragraphs = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
-        total_words = sum(len(p.split()) for p in paragraphs)
-        total_chars = sum(len(p) for p in paragraphs)
-
         summary_text = "\n".join(paragraphs)
         preview = summary_text[:1000] + "..." if len(summary_text) > 1000 else summary_text
 
         prompt = f"Simplify and explain this document content for a common person:\n{preview}"
 
-      client = OpenAI(api_key=openai_key)
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You simplify and explain documents in layman's language."},
+                {"role": "user", "content": prompt}
+            ]
+        )
 
-    response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "You simplify and explain documents in layman's language."},
-        {"role": "user", "content": prompt}
-        ]
-    )
-
-        simplified = response['choices'][0]['message']['content']
+        simplified = response.choices[0].message.content
         translated = simplified
 
         if language_code != 'en':
@@ -78,14 +67,14 @@ if uploaded_file and openai_key:
                 f"Translate UI terms like 'resume', 'viva', and 'PDF' into commonly used {language_name} equivalents. "
                 f"Avoid robotic or literal translation. Write like a human explaining it to students:\n\n{simplified}"
             )
-            translation_response = openai.ChatCompletion.create(
+            translation_response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You translate simplified English text into Indian regional languages clearly."},
                     {"role": "user", "content": translation_prompt}
                 ]
             )
-            translated = translation_response['choices'][0]['message']['content']
+            translated = translation_response.choices[0].message.content
 
         st.text_area("📑 Analysis Output", translated, height=400)
 
