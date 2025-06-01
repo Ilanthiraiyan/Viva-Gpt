@@ -89,12 +89,12 @@ if uploaded_file:
         if language_code != 'en':
             with st.spinner(f"🌐 Translating to {language_name}..."):
                translation_prompt = f"""
-                Translate the following resume text into clear and professional {language_name}.
+               Translate the following resume text into clear and professional {language_name}.
 
-                - Preserve numbered or bulleted points exactly.
-                - Do NOT add emojis, extra characters, or change the order.
-                - Accurately translate role names (e.g., 'Project Manager' → 'திட்ட மேலாளர்') and skills.
-                - This is a formal document. No slang or casual tone.
+               - Preserve numbered or bulleted points exactly.
+               - Do NOT add emojis, extra characters, or change the order.
+               - Accurately translate role names (e.g., 'Project Manager' → 'திட்ட மேலாளர்') and skills.
+               - This is a formal document. No slang or casual tone.
 
                 Resume content:
                 \"\"\"
