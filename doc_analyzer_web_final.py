@@ -9,7 +9,8 @@ import openai
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv("secrets.toml")
+openai_key = st.secrets["OPENAI_API_KEY"]
+
 
 LANGUAGES = {
     'English': 'en',
@@ -37,7 +38,7 @@ st.title("📄 Multilingual Document Analyzer")
 st.markdown("Upload a `.docx` document to analyze and translate its content into your chosen language.")
 
 # Get OpenAI API key from .env
-openai_key = os.getenv("OPENAI_API_KEY")
+openai_key = st.secrets["OPENAI_API_KEY"]
 
 language_name = st.selectbox("Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
