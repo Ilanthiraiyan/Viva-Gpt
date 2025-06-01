@@ -42,7 +42,7 @@ if "paid_user" not in st.session_state:
 if st.session_state.usage_count >= 1 and not st.session_state.paid_user:
     st.warning("🛑 Free usage limit reached (1 file/day).")
     st.markdown("To unlock unlimited access for 7 days, please pay ₹49 below:")
-    st.markdown("[🛒 Click to Pay on Razorpay](https://rzp.io/l/vivagpt)")  # Replace with your Razorpay link
+  st.markdown("💳 Send ₹49 to **ithiraiyan-2@okhdfcbank** on GPay and email your Gmail/screenshot to unlock full access.")
     st.stop()
 
 # File upload
