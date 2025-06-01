@@ -1,19 +1,19 @@
-# doc_analyzer_web.py
 
 import streamlit as st
 from docx import Document
 from gtts import gTTS
-import os
-import tempfile
 import openai
+import tempfile
 
-# Get OpenAI API key securely from Streamlit secrets
+# Setup page
+st.set_page_config(page_title="VivaGPT - AI Document Simplifier", layout="centered")
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
+# Language support
 LANGUAGES = {
     'English': 'en',
-    'Hindi (हिन्दी)': 'hi',
     'Tamil (தமிழ்)': 'ta',
+    'Hindi (हिन्दी)': 'hi',
     'Telugu (తెలుగు)': 'te',
     'Malayalam (മലയാളം)': 'ml',
     'Kannada (ಕನ್ನಡ)': 'kn',
@@ -21,80 +21,90 @@ LANGUAGES = {
     'Marathi (मराठी)': 'mr',
     'Gujarati (ગુજરાતી)': 'gu',
     'Punjabi (ਪੰਜਾਬੀ)': 'pa',
-    'Urdu (اردو)': 'ur',
-    'Sanskrit (संस्कृतम्)': 'sa',
-    'Spanish (Español)': 'es',
-    'French (Français)': 'fr',
-    'German (Deutsch)': 'de',
-    'Chinese (中文)': 'zh-CN',
-    'Japanese (日本語)': 'ja',
-    'Korean (한국어)': 'ko'
+    'Urdu (اردو)': 'ur'
 }
 
-st.set_page_config(page_title="Multilingual Document Analyzer", layout="wide")
-st.title("📄 Multilingual- Document Simplifier + Translator + Voice")
-st.markdown("Upload a `.docx` file to simplify and translate it. Output will be explained like a teacher in your language!")
+# Header
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>📘 VivaGPT</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center;'>Understand any document in your language</h4>", unsafe_allow_html=True)
+st.markdown("---")
 
-language_name = st.selectbox("Choose Output Language", list(LANGUAGES.keys()), index=0)
+# Language selection
+language_name = st.selectbox("🌐 Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
 
-uploaded_file = st.file_uploader("📁 Upload a .docx file", type=["docx"])
+# Payment check
+if "usage_count" not in st.session_state:
+    st.session_state.usage_count = 0
+if "paid_user" not in st.session_state:
+    st.session_state.paid_user = False
+
+if st.session_state.usage_count >= 1 and not st.session_state.paid_user:
+    st.warning("🛑 Free usage limit reached (1 file/day).")
+    st.markdown("To unlock unlimited access for 7 days, please pay ₹49 below:")
+    st.markdown("[🛒 Click to Pay on Razorpay](https://rzp.io/l/vivagpt)")  # Replace with your Razorpay link
+    st.stop()
+
+# File upload
+uploaded_file = st.file_uploader("📂 Upload a .docx file to analyze", type=["docx"])
 
 if uploaded_file:
     try:
+        # Read document
         doc = Document(uploaded_file)
         paragraphs = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
         summary_text = "\n".join(paragraphs)
         preview = summary_text[:1000] + "..." if len(summary_text) > 1000 else summary_text
 
-        prompt = f"Simplify and explain this document content for a common person:\n{preview}"
-
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You simplify and explain documents in layman's language."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-
-        simplified = response.choices[0].message.content
-        translated = simplified
-
-        if language_code != 'en':
-            translation_prompt = f"""
-            Translate the following content into **easy-to-understand, spoken {language_name}** suitable for college students.
-
-            Guidelines:
-            - Write like a friendly mentor explaining it to students who may not be familiar with technical words.
-            - Use simple, clear, and polite language — like you’re talking to someone face-to-face.
-            - Keep bullet points, numbering, and formatting intact.
-            - Translate or transliterate words like 'resume', 'project', 'PDF', and 'viva' into {language_name} in the most commonly used student-friendly way.
-            - Do not use robotic or overly formal tone. Prioritize clarity and usefulness.
-
-            Now translate this:
-            \"\"\"
-            {simplified}
-            \"\"\"
-            """
-
-            translation_response = openai.chat.completions.create(
+        # Step 1: Simplify
+        with st.spinner("✍️ Simplifying..."):
+            response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You translate simplified English content for Indian students into their local language."},
-                    {"role": "user", "content": translation_prompt}
+                    {"role": "system", "content": "You simplify and explain documents in layman's language."},
+                    {"role": "user", "content": f"Simplify and explain this document content for a college student:\n{preview}"}
                 ]
             )
-            translated = translation_response.choices[0].message.content
+            simplified = response.choices[0].message.content
+            translated = simplified
 
+        # Step 2: Translate
+        if language_code != 'en':
+            with st.spinner(f"🌐 Translating to {language_name}..."):
+                translation_prompt = f"""
+                Translate this into easy-to-understand, spoken {language_name} for Indian families.
 
-        st.text_area("📑 Analysis Output", translated, height=400)
+                - Use a natural, conversational tone.
+                - Avoid robotic or overly formal language.
+                - Translate or explain terms like 'resume', 'viva', 'PDF'.
 
+                Content:
+                """
+                {simplified}
+                """
+                """
+                translation_response = openai.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You translate simplified English into Indian languages for general users."},
+                        {"role": "user", "content": translation_prompt}
+                    ]
+                )
+                translated = translation_response.choices[0].message.content
+
+        # Output
+        st.success("✅ Done! See below.")
+        st.text_area("📑 Result:", translated, height=400)
+
+        # Voice
         if st.button("🔊 Read Aloud"):
             tts = gTTS(text=translated, lang=language_code)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
                 tts.save(tmp.name)
-                audio_path = tmp.name
-            st.audio(audio_path, format="audio/mp3")
+                st.audio(tmp.name, format="audio/mp3")
+
+        # Track usage
+        st.session_state.usage_count += 1
 
     except Exception as e:
         st.error(f"❌ Error: {str(e)}")
