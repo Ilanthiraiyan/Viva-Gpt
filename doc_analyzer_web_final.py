@@ -89,17 +89,19 @@ if uploaded_file:
         if language_code != 'en':
             with st.spinner(f"🌐 Translating to {language_name}..."):
                 translation_prompt = f"""
-                Translate this into easy-to-understand, spoken {language_name} for Indian families.
+                Translate the following technical explanation into formal and accurate {language_name}.
 
-                - Use a natural, conversational tone.
-                - Avoid robotic or overly formal language.
-                - Translate or explain terms like 'resume', 'viva', 'PDF'.
+                - Do NOT skip or summarize any point.
+                - Preserve the structure: use numbers or bullet points just like the original.
+                - Keep project management terms like 'Initiation', 'Execution', 'WBS', 'JIRA', etc., and explain them if needed in the same sentence.
+                - Translate for Tamil-speaking professionals or students — not like a story, but like a clear training explanation.
 
-                Content:
-                """
+                Text to translate:
+                \"\"\"
                 {simplified}
+                \"\"\"
                 """
-                """
+
                 translation_response = openai.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
