@@ -60,31 +60,32 @@ if uploaded_file:
         simplified = response.choices[0].message.content
         translated = simplified
 
-        if language_code != 'en':
-          translation_prompt = f"""
-Translate the following content into **easy-to-understand, spoken {language_name}** suitable for college students.
+               if language_code != 'en':
+            translation_prompt = f"""
+            Translate the following content into **easy-to-understand, spoken {language_name}** suitable for college students.
 
-Guidelines:
-- Write like a friendly mentor explaining it to students who may not be familiar with technical words.
-- Use simple, clear, and polite language — like you’re talking to someone face-to-face.
-- Keep bullet points, numbering, and formatting intact.
-- Translate or transliterate words like 'resume', 'project', 'PDF', and 'viva' into {language_name} in the most commonly used student-friendly way.
-- Do not use robotic or overly formal tone. Prioritize clarity and usefulness.
+            Guidelines:
+            - Write like a friendly mentor explaining it to students who may not be familiar with technical words.
+            - Use simple, clear, and polite language — like you’re talking to someone face-to-face.
+            - Keep bullet points, numbering, and formatting intact.
+            - Translate or transliterate words like 'resume', 'project', 'PDF', and 'viva' into {language_name} in the most commonly used student-friendly way.
+            - Do not use robotic or overly formal tone. Prioritize clarity and usefulness.
 
-Now translate this:
-\"\"\"
-{simplified}
-\"\"\"
-"""
+            Now translate this:
+            \"\"\"
+            {simplified}
+            \"\"\"
+            """
 
             translation_response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You translate simplified English text into Indian regional languages clearly."},
+                    {"role": "system", "content": "You translate simplified English content for Indian students into their local language."},
                     {"role": "user", "content": translation_prompt}
                 ]
             )
             translated = translation_response.choices[0].message.content
+
 
         st.text_area("📑 Analysis Output", translated, height=400)
 
