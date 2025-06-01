@@ -33,6 +33,9 @@ st.markdown("---")
 language_name = st.selectbox("🌐 Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
 
+# ✍️ Ask user to enter their Gmail ID
+user_email = st.text_input("🔑 Enter your Gmail ID to check premium access:")
+
 # 🔒 Payment session state setup
 if "usage_count" not in st.session_state:
     st.session_state["usage_count"] = 0
