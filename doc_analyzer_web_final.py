@@ -31,7 +31,7 @@ LANGUAGES = {
     'Korean (한국어)': 'ko'
 }
 
-st.set_page_config(page_title="VivaGPT - Multilingual Document Analyzer", layout="wide")
+st.set_page_config(page_title="Multilingual Document Analyzer", layout="wide")
 st.title("📄 VivaGPT - Document Simplifier + Translator + Voice")
 st.markdown("Upload a `.docx` file to simplify and translate it. Output will be explained like a teacher in your language!")
 
