@@ -33,11 +33,13 @@ st.markdown("---")
 language_name = st.selectbox("🌐 Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
 
-# Payment check
+# 🔒 Payment session state setup
 if "usage_count" not in st.session_state:
-    st.session_state.usage_count = 0
+    st.session_state["usage_count"] = 0
+
 if "paid_user" not in st.session_state:
-    st.session_state.paid_user = False
+    st.session_state["paid_user"] = False
+
 
 if st.session_state.usage_count >= 1 and not st.session_state.paid_user:
     st.warning("🔴 Free usage limit reached (1 file/day).")
