@@ -33,8 +33,7 @@ st.markdown("---")
 language_name = st.selectbox("🌐 Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
 
-# ✍️ Ask user to enter their Gmail ID
-user_email = st.text_input("🔑 Enter your Gmail ID to check premium access:")
+
 
 # 🔒 Payment session state setup
 if "usage_count" not in st.session_state:
@@ -44,7 +43,9 @@ if "paid_user" not in st.session_state:
     st.session_state["paid_user"] = False
 
 # ✨ NEW: Ask for Gmail & check
-user_email = st.text_input("Enter your Gmail ID to check premium access:")
+if not st.session_state.paid_user:
+    user_email = st.text_input("🔑 Enter your Gmail ID to check premium access:")
+
 PAID_USERS = ["user1@gmail.com", "ithiraiyan86@gmail.com"]
 if user_email and user_email.strip().lower() in [email.lower() for email in PAID_USERS]:
     st.session_state.paid_user = True
