@@ -40,10 +40,12 @@ if "paid_user" not in st.session_state:
     st.session_state.paid_user = False
 
 if st.session_state.usage_count >= 1 and not st.session_state.paid_user:
-    st.warning("🛑 Free usage limit reached (1 file/day).")
-    st.markdown("To unlock unlimited access for 7 days, please pay ₹49 below:")
-  st.markdown("💳 Send ₹49 to **ithiraiyan-2@okhdfcbank** on GPay and email your Gmail/screenshot to unlock full access.")
+    st.warning("🔴 Free usage limit reached (1 file/day).")
+    st.markdown("To unlock unlimited access for 7 days, please pay ₹49 using the details below:")
+    st.markdown("💳 **Send ₹49 to `ithiraiya-2@okhdfcbank` on GPay or any UPI app**")
+    st.markdown("📧 After payment, email your **Gmail ID** and **screenshot** to: `ithiraiyan@gmail.com` to activate your access.")
     st.stop()
+
 
 # File upload
 uploaded_file = st.file_uploader("📂 Upload a .docx file to analyze", type=["docx"])
