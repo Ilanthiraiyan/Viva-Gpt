@@ -60,7 +60,7 @@ if uploaded_file:
         simplified = response.choices[0].message.content
         translated = simplified
 
-               if language_code != 'en':
+        if language_code != 'en':
             translation_prompt = f"""
             Translate the following content into **easy-to-understand, spoken {language_name}** suitable for college students.
 
