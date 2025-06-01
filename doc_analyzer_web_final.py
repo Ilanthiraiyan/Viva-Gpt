@@ -1,4 +1,3 @@
-
 import streamlit as st
 from docx import Document
 from gtts import gTTS
@@ -33,8 +32,6 @@ st.markdown("---")
 language_name = st.selectbox("🌐 Choose Output Language", list(LANGUAGES.keys()), index=0)
 language_code = LANGUAGES[language_name]
 
-
-
 # 🔒 Payment session state setup
 if "usage_count" not in st.session_state:
     st.session_state["usage_count"] = 0
@@ -52,15 +49,13 @@ if not st.session_state.paid_user:
         st.session_state.paid_user = True
         st.success("✅ Premium access activated.")
 
-
-
+# Usage check
 if st.session_state.usage_count >= 1 and not st.session_state.paid_user:
     st.warning("🔴 Free usage limit reached (1 file/day).")
     st.markdown("To unlock unlimited access for 7 days, please pay ₹49 using the details below:")
     st.markdown("💳 **Send ₹49 to `ithiraiya-2@okhdfcbank` on GPay or any UPI app**")
     st.markdown("📧 After payment, email your **Gmail ID** and **screenshot** to: `ithiraiyan@gmail.com` to activate your access.")
     st.stop()
-
 
 # File upload
 uploaded_file = st.file_uploader("📂 Upload a .docx file to analyze", type=["docx"])
@@ -75,26 +70,26 @@ if uploaded_file:
 
         # Step 1: Simplify
         with st.spinner("✍️ Simplifying..."):
-            response = openai.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You simplify and explain documents in layman's language."},
                     {"role": "user", "content": f"Simplify and explain this document content for a college student:\n{preview}"}
                 ]
             )
-            simplified = response.choices[0].message.content
+            simplified = response.choices[0].message["content"]
             translated = simplified
 
         # Step 2: Translate
         if language_code != 'en':
             with st.spinner(f"🌐 Translating to {language_name}..."):
-               translation_prompt = f"""
-               Translate the following resume text into clear and professional {language_name}.
+                translation_prompt = f"""
+                Translate the following resume text into clear and professional {language_name}.
 
-               - Preserve numbered or bulleted points exactly.
-               - Do NOT add emojis, extra characters, or change the order.
-               - Accurately translate role names (e.g., 'Project Manager' → 'திட்ட மேலாளர்') and skills.
-               - This is a formal document. No slang or casual tone.
+                - Preserve numbered or bulleted points exactly.
+                - Do NOT add emojis, extra characters, or change the order.
+                - Accurately translate role names (e.g., 'Project Manager' → 'திட்ட மேலாளர்') and skills.
+                - This is a formal document. No slang or casual tone.
 
                 Resume content:
                 \"\"\"
@@ -102,15 +97,14 @@ if uploaded_file:
                 \"\"\"
                 """
 
-
-                translation_response = openai.chat.completions.create(
+                translation_response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": "You translate simplified English into Indian languages for general users."},
                         {"role": "user", "content": translation_prompt}
                     ]
                 )
-                translated = translation_response.choices[0].message.content
+                translated = translation_response.choices[0].message["content"]
 
         # Output
         st.success("✅ Done! See below.")
