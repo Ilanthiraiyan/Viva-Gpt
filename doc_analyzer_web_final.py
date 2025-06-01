@@ -88,19 +88,20 @@ if uploaded_file:
         # Step 2: Translate
         if language_code != 'en':
             with st.spinner(f"🌐 Translating to {language_name}..."):
-                translation_prompt = f"""
-                Translate the following technical explanation into formal and accurate {language_name}.
+               translation_prompt = f"""
+                Translate the following resume text into clear and professional {language_name}.
 
-                - Do NOT skip or summarize any point.
-                - Preserve the structure: use numbers or bullet points just like the original.
-                - Keep project management terms like 'Initiation', 'Execution', 'WBS', 'JIRA', etc., and explain them if needed in the same sentence.
-                - Translate for Tamil-speaking professionals or students — not like a story, but like a clear training explanation.
+                - Preserve numbered or bulleted points exactly.
+                - Do NOT add emojis, extra characters, or change the order.
+                - Accurately translate role names (e.g., 'Project Manager' → 'திட்ட மேலாளர்') and skills.
+                - This is a formal document. No slang or casual tone.
 
-                Text to translate:
+                Resume content:
                 \"\"\"
                 {simplified}
                 \"\"\"
                 """
+
 
                 translation_response = openai.chat.completions.create(
                     model="gpt-3.5-turbo",
