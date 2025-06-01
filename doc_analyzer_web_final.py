@@ -71,7 +71,7 @@ if uploaded_file:
         # Step 1: Simplify
         with st.spinner("✍️ Simplifying..."):
             client = openai.OpenAI()
-            response = client.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You simplify and explain documents in layman's language."},
