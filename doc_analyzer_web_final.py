@@ -61,12 +61,22 @@ if uploaded_file:
         translated = simplified
 
         if language_code != 'en':
-            translation_prompt = (
-                f"Translate the following into {language_name} in natural, polite, and easily understandable {language_name}. "
-                f"Use student-friendly words. Keep original structure (like bullet points or numbered items). "
-                f"Translate UI terms like 'resume', 'viva', and 'PDF' into commonly used {language_name} equivalents. "
-                f"Avoid robotic or literal translation. Write like a human explaining it to students:\n\n{simplified}"
-            )
+          translation_prompt = f"""
+Translate the following content into **easy-to-understand, spoken {language_name}** suitable for college students.
+
+Guidelines:
+- Write like a friendly mentor explaining it to students who may not be familiar with technical words.
+- Use simple, clear, and polite language — like you’re talking to someone face-to-face.
+- Keep bullet points, numbering, and formatting intact.
+- Translate or transliterate words like 'resume', 'project', 'PDF', and 'viva' into {language_name} in the most commonly used student-friendly way.
+- Do not use robotic or overly formal tone. Prioritize clarity and usefulness.
+
+Now translate this:
+\"\"\"
+{simplified}
+\"\"\"
+"""
+
             translation_response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
