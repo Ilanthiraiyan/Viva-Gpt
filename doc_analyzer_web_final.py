@@ -70,7 +70,8 @@ if uploaded_file:
 
         # Step 1: Simplify
         with st.spinner("✍️ Simplifying..."):
-            response = openai.ChatCompletion.create(
+            client = openai.OpenAI()
+            response = client.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You simplify and explain documents in layman's language."},
@@ -84,14 +85,15 @@ if uploaded_file:
         if language_code != 'en':
             with st.spinner(f"🌐 Translating to {language_name}..."):
                 translation_prompt = f"""
-                Translate the following resume text into clear and professional {language_name}.
+                Translate the following document content into clear, formal and professional {language_name}.
 
-                - Preserve numbered or bulleted points exactly.
-                - Do NOT add emojis, extra characters, or change the order.
-                - Accurately translate role names (e.g., 'Project Manager' → 'திட்ட மேலாளர்') and skills.
-                - This is a formal document. No slang or casual tone.
+                - Maintain formatting like bullets or numbered lists.
+                - Do NOT add emojis or change the original structure.
+                - Use culturally appropriate and accurate translations for professional terms.
+                - Translate job titles, project names, and skills correctly (e.g., 'Project Manager' → 'திட்ட மேலாளர்' in Tamil).
+                - Avoid slang or casual phrases — keep it professional and easy to understand.
 
-                Resume content:
+                Content to translate:
                 \"\"\"
                 {simplified}
                 \"\"\"
