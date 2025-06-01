@@ -6,7 +6,7 @@ from gtts import gTTS
 import os
 import tempfile
 import openai
-from dotenv import load_dotenv
+from openai import OpenAI
 
 # Load environment variables from .env file
 openai_key = st.secrets["OPENAI_API_KEY"]
@@ -58,13 +58,15 @@ if uploaded_file and openai_key:
 
         prompt = f"Simplify and explain this document content for a common person:\n{preview}"
 
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You simplify and explain documents in layman's language."},
-                {"role": "user", "content": prompt}
-            ]
-        )
+      client = OpenAI(api_key=openai_key)
+
+    response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You simplify and explain documents in layman's language."},
+        {"role": "user", "content": prompt}
+        ]
+    )
 
         simplified = response['choices'][0]['message']['content']
         translated = simplified
