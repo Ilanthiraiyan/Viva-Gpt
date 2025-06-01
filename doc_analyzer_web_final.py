@@ -47,7 +47,7 @@ if not st.session_state.paid_user:
     user_email = st.text_input("🔑 Enter your Gmail ID to check premium access:")
 
 PAID_USERS = ["user1@gmail.com", "ithiraiyan86@gmail.com"]
-if user_email and user_email.strip().lower() in [email.lower() for email in PAID_USERS]:
+if user_email and user_email.strip().lower() in [e.lower() for e in PAID_USERS]:
     st.session_state.paid_user = True
     st.success("✅ Premium access activated.")
 
