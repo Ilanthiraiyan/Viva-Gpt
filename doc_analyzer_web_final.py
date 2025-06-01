@@ -9,7 +9,7 @@ import openai
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv("open-ai.env")
+load_dotenv("secrets.toml")
 
 LANGUAGES = {
     'English': 'en',
