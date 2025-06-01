@@ -80,7 +80,7 @@ if uploaded_file:
             simplified = response.choices[0].message["content"]
             translated = simplified
 
-        # Step 2: Translate
+               # Step 2: Translate
         if language_code != 'en':
             with st.spinner(f"🌐 Translating to {language_name}..."):
                 translation_prompt = f"""
@@ -105,6 +105,7 @@ if uploaded_file:
                     ]
                 )
                 translated = translation_response.choices[0].message["content"]
+
 
         # Output
         st.success("✅ Done! See below.")
